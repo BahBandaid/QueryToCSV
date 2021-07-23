@@ -8,6 +8,9 @@ using System.Globalization;
 
 namespace QueryToCSV
 {
+    /// <summary>
+    /// Helper class for exporting ODBC query results to a csv file.
+    /// </summary>
     public static class QueryCSVHelper
     {
         private static void AddProperty(ExpandoObject expando, string propertyName, object propertyValue)
@@ -23,6 +26,12 @@ namespace QueryToCSV
             }
         }
 
+        /// <summary>
+        /// Take a connection string, a query string, and a file path, and write the results of the query into a csv file at the location referred to in the file path. 
+        /// </summary>
+        /// <param name="connectionString">Connection string to connect to your odbc service.</param>
+        /// <param name="queryString">Query to be ran on the database connected to with connectionString</param>
+        /// <param name="csvOutPath">The filepath where the csv should be generated.</param>
         public static void OutputCsv(string connectionString, string queryString, string csvOutPath)
         {
             var command = new OdbcCommand(queryString);
@@ -67,6 +76,14 @@ namespace QueryToCSV
 
             }
         }
+
+        /// <summary>
+        /// Take a connection string, a query string, and a file path, and write the results of the query into a csv file at the location referred to in the file path. 
+        /// Writes the file asynchronously.
+        /// </summary>
+        /// <param name="connectionString">Connection string to connect to your odbc service.</param>
+        /// <param name="queryString">Query to be ran on the database connected to with connectionString</param>
+        /// <param name="csvOutPath">The filepath where the csv should be generated.</param>
         public static async void OutputCsvAsync(string connectionString, string queryString, string csvOutPath)
         {
             var command = new OdbcCommand(queryString);
