@@ -128,5 +128,50 @@ namespace QueryToCSV
 
             }
         }
+
+        /// <summary>
+        /// Take a connection string and query string, and return the results of the ODBC query as a list of Exapndo objects.
+        /// </summary>
+        /// <param name="connectionString">Connection string to connect to your odbc service.</param>
+        /// <param name="queryString">Query to be ran on the database connected to with connectionString</param>
+        /// <returns>A list of dynamic objects each representing a single row, the values in the row are mapped to properties with the same names as the column names in the database you are querying from.</returns>
+        public static List<dynamic> GetData(string connectionString, string queryString)
+        {
+            var command = new OdbcCommand(queryString);
+
+            using (var connection = new OdbcConnection(connectionString))
+            {
+                command.Connection = connection;
+                connection.Open();
+                var data_reader = command.ExecuteReader();
+                data_reader.Read();
+
+                var tableSchema = data_reader.GetSchemaTable();
+                var field_count = data_reader.FieldCount;
+                var enumerated_columns = new Dictionary<int, string> { };
+
+                var i = 0;
+                foreach (DataRow row in tableSchema.Rows)
+                {
+                    enumerated_columns.Add(i, row["ColumnName"].ToString());
+                    i++;
+                }
+
+                var query_rows = new List<dynamic> { };
+
+                while (data_reader.Read())
+                {
+                    dynamic row = new ExpandoObject();
+                    for (var x = 0; x < data_reader.FieldCount; x++)
+                    {
+                        AddProperty(row, enumerated_columns[x], data_reader[x]);
+                    }
+                    query_rows.Add(row);
+                }
+
+                return query_rows;
+
+            }
+        }
     }
 }
